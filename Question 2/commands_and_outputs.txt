@@ -1,1 +1,113 @@
+COMMANDS EXECUTED AND OUTPUTS
 
+TEST 1: SCRIPT EXECUTION - NO ARGUMENTS
+
+Command: ./log_analyzer.sh
+
+Output:
+Usage: ./log_analyzer.sh <logfile>
+
+Exit Code: 1 (error)
+
+Explanation:
+- Script requires exactly one argument (logfile name)
+- Condition [ $# -ne 1 ] evaluated to true (0 arguments ≠ 1)
+- Displays usage message and exits with status 1
+
+
+TEST 2: SCRIPT EXECUTION - NON-EXISTENT FILE
+
+Command: ./log_analyzer.sh /nonexistent/log.txt
+
+Output:
+Error: File '/nonexistent/log.txt' does not exist.
+
+Exit Code: 1 (error)
+
+Explanation:
+- Condition [ ! -e "$logfile" ] evaluated to true (file does not exist)
+- Script displays error message with the specified path
+- Exits with status 1 (graceful error handling)
+
+
+TEST 3: SCRIPT EXECUTION - UNREADABLE FILE
+
+Command: chmod 000 sample.log && ./log_analyzer.sh sample.log
+
+Output:
+Error: File 'sample.log' is not readable.
+
+Exit Code: 1 (error)
+
+Explanation:
+- File exists but has no read permissions (chmod 000)
+- Condition [ ! -r "$logfile" ] evaluated to true (not readable)
+- Script displays error message
+- Exits with status 1
+
+Cleanup: chmod 644 sample.log
+
+
+TEST 4: SUCCESSFUL LOG FILE ANALYSIS
+
+Command: ./log_analyzer.sh sample.log
+
+Sample Log File Content (sample.log):
+2025-01-12 10:15:22 INFO System started
+2025-01-12 10:16:01 ERROR Disk not found
+2025-01-12 10:16:45 WARNING High memory usage
+2025-01-12 10:17:10 ERROR Network timeout
+2025-01-13 09:00:00 INFO Daily job started
+
+Output:
+Log Summary Report - 2026-02-05
+Source file: sample.log
+
+Total log entries: 5
+INFO: 2
+WARNING: 1
+ERROR: 2
+
+Most recent ERROR:
+2025-01-12 10:17:10 Network timeout
+
+Report saved to: logsummary_2026-02-05.txt
+
+Exit Code: 0 (success)
+
+Explanation:
+- Script successfully read and parsed the log file
+- grep -E pattern counted 5 total log entries (lines with valid timestamp)
+- awk commands counted:
+  * 2 INFO entries: "System started" and "Daily job started"
+  * 1 WARNING entry: "High memory usage"
+  * 2 ERROR entries: "Disk not found" and "Network timeout"
+- Most recent ERROR identification:
+  * awk extracted all ERROR entries with timestamp
+  * sort -k1,1 -k2,2 sorted by date then time
+  * tail -n 1 selected the last (most recent) entry
+  * Result: "2025-01-12 10:17:10 Network timeout"
+- Report file generated automatically with date in filename
+
+
+TEST 5: GENERATED REPORT FILE CONTENT
+
+File: logsummary_2026-02-05.txt
+
+Content:
+Log Summary Report - 2026-02-05
+Source file: sample.log
+
+Total log entries: 5
+INFO: 2
+WARNING: 1
+ERROR: 2
+
+Most recent ERROR:
+2025-01-12 10:17:10 Network timeout
+
+Explanation:
+- Report file created with date format YYYY-MM-DD (2026-02-05)
+- Contains all same information displayed to stdout
+- Filename format: logsummary_<date>.txt
+- Allows for multiple reports on different dates without overwriting
