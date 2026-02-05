@@ -1,0 +1,6 @@
+101, Alice Smith, 45, 67, 78
+102, Bob Jones, 32, 40, 50
+103, Carol Lee, 90, 88, 92
+104, Dan Brown, 33, 33, 32
+105, Eve White, 31, 34, 35
+106, Frank Black, 60, 29, 70
