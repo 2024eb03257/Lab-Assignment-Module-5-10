@@ -1,0 +1,4 @@
+The quick brown fox jumps over the lazy dog.
+This sentence contains the longest word in this text and a.
+Programming is fun, challenging and rewarding!
+Don't forget: apples, oranges and bananas are fruits.
