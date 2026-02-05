@@ -1,1 +1,139 @@
+1. ARGUMENT VALIDATION COMMAND
+   Command: [ $# -ne 1 ]
+   Explanation:
+   - $#: Returns the total number of command-line arguments passed to the script
+   - -ne: "not equal" operator
+   - This checks if the argument count is NOT equal to 1
+   - Used with 'if' statement to validate exactly one argument is provided
 
+2. PATH EXISTENCE CHECK COMMAND
+   Command: [ ! -e "$1" ]
+   Explanation:
+   - !: Logical NOT operator (negates the condition)
+   - -e: File test operator meaning "file exists"
+   - "$1": First command-line argument (the path provided by user)
+   - This checks if the path does NOT exist
+   - Used to validate the provided path is valid
+
+3. FILE CHECK COMMAND
+   Command: [ -f "$1" ]
+   Explanation:
+   - -f: File test operator meaning "is a regular file"
+   - "$1": The path provided by user
+   - Returns true if the path is a file (not directory)
+   - Used to determine if analysis should be for a file
+
+4. WORD COUNT COMMAND - LINES
+   Command: wc -l < "$1"
+   Explanation:
+   - wc: Word Count utility (counts lines, words, characters)
+   - -l: Flag to count lines only
+   - <: Input redirection operator (reads file contents)
+   - "$1": The file path
+   - Output: Number of lines in the file
+   - Example: wc -l < myfile.txt returns 42 (if file has 42 lines)
+
+5. WORD COUNT COMMAND - WORDS
+   Command: wc -w < "$1"
+   Explanation:
+   - wc: Word Count utility
+   - -w: Flag to count words only
+   - <: Input redirection operator
+   - "$1": The file path
+   - Output: Number of words in the file
+   - Example: wc -w < myfile.txt returns 100 (if file has 100 words)
+
+6. WORD COUNT COMMAND - CHARACTERS
+   Command: wc -c < "$1"
+   Explanation:
+   - wc: Word Count utility
+   - -c: Flag to count characters/bytes only
+   - <: Input redirection operator
+   - "$1": The file path
+   - Output: Number of characters (bytes) in the file
+   - Example: wc -c < myfile.txt returns 512
+
+7. STRING TRIM COMMAND
+   Command: tr -d ' '
+   Explanation:
+   - tr: Translate/transform characters
+   - -d: Delete mode (removes specified character)
+   - ' ': Space character to remove
+   - Used in pipeline to remove whitespace from wc output
+   - Example: "   42  " | tr -d ' ' produces "42"
+
+8. DIRECTORY CHECK COMMAND
+   Command: [ -d "$1" ]
+   Explanation:
+   - -d: File test operator meaning "is a directory"
+   - "$1": The path provided by user
+   - Returns true if the path is a directory
+   - Used to determine if analysis should be for a directory
+
+9. FIND COMMAND - COUNT TOTAL FILES
+   Command: find "$1" -maxdepth 1 -type f
+   Explanation:
+   - find: Searches for files/directories matching criteria
+   - "$1": Search directory path
+   - -maxdepth 1: Limit search to 1 level deep (only direct children, not subdirectories)
+   - -type f: Find only regular files (not directories)
+   - Output: List of all files in the directory
+   - Piped to wc -l to count them
+
+10. FIND COMMAND - COUNT TEXT FILES
+    Command: find "$1" -maxdepth 1 -name "*.txt" -type f
+    Explanation:
+    - find: Searches for files/directories matching criteria
+    - "$1": Search directory path
+    - -maxdepth 1: Limit search to 1 level deep
+    - -name "*.txt": Match files with .txt extension
+    - -type f: Find only regular files
+    - Output: List of .txt files in the directory
+    - Piped to wc -l to count them
+
+11. VARIABLE ASSIGNMENT WITH COMMAND SUBSTITUTION
+    Command: lines=$(wc -l < "$1" | tr -d ' ')
+    Explanation:
+    - $(...): Command substitution - executes command and captures output
+    - Assigns the result to a variable
+    - Example: lines=$(wc -l < myfile.txt | tr -d ' ') stores "42" in variable 'lines'
+
+12. EXIT COMMAND
+    Command: exit 1
+    Explanation:
+    - exit: Terminates the script
+    - 1: Exit status code (0 = success, non-zero = error)
+    - Used to exit script when error conditions are met
+    - Example: exit 1 indicates script failed
+
+                         ECHO COMMAND
+
+Command: echo "text"
+Explanation:
+- echo: Prints text to the console
+- Displays output/messages to the user
+- Examples:
+  echo "File Analysis: $1"
+  echo "Number of lines: $lines"
+
+
+                           LOGICAL OPERATORS
+
+1. AND Operator: &&
+   - Executes next command only if previous command succeeds
+   - Example: ./analyze.sh test.txt && echo "Success"
+
+2. OR Operator: ||
+   - Executes next command only if previous command fails
+   - Example: ./analyze.sh test.txt || echo "Failed"
+
+
+                          DATA FLOW EXAMPLES
+
+Example 1: File Analysis Pipeline
+  Command: lines=$(wc -l < "$1" | tr -d ' ')
+  Flow: wc -l counts newlines → tr -d ' ' removes spaces → result stored in 'lines'
+
+Example 2: Directory File Count
+  Command: total_files=$(find "$1" -maxdepth 1 -type f | wc -l)
+  Flow: find lists files → wc -l counts lines → result stored in 'total_files'
