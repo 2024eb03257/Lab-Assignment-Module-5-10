@@ -1,0 +1,35 @@
+COMMANDS AND OUTPUTS 
+
+SETUP
+
+Create test file:
+$ cat > input.txt << 'EOF'
+The quick brown fox jumps over the lazy dog.
+This sentence contains the longest word in this text and a.
+> Programming is fun, challenging and rewarding!
+> Don't forget: apples, oranges and bananas are fruits.
+> EOF
+
+
+EXECUTION 
+
+Command:
+$ chmod +x metrics.sh
+$ ./metrics.sh input.txt
+
+Output:
+Analyzing: input.txt
+------------------------
+Unique words: 30
+
+Longest words (11 chars):
+  challenging
+  programming
+
+Shortest words (1 chars):
+  a
+  t
+
+Average length: 4.69 chars
+Total words: 35
+------------------------
