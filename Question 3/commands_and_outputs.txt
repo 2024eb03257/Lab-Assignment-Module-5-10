@@ -1,1 +1,54 @@
+COMMANDS EXECUTED AND OUTPUTS
 
+1) Make script executable
+Command:
+chmod +x validate_results.sh
+
+(No output on success)
+
+2) Show sample input file
+Command:
+cat marks.txt
+
+marks.txt content:
+101, Alice Smith, 45, 67, 78
+102, Bob Jones, 32, 40, 50
+103, Carol Lee, 90, 88, 92
+104, Dan Brown, 33, 33, 32
+105, Eve White, 31, 34, 35
+106, Frank Black, 60, 29, 70
+
+3) Run the validator
+Command:
+./validate_results.sh marks.txt
+
+Output:
+Students who failed in exactly ONE subject:
+102, Bob Jones
+104, Dan Brown
+105, Eve White
+106, Frank Black
+
+Students who passed ALL subjects:
+101, Alice Smith
+103, Carol Lee
+
+Counts:
+Passed all: 2
+Failed exactly one: 4
+
+Explanation:
+- Passing mark per subject = 33
+- Script reads CSV-style lines, trims whitespace, treats non-numeric marks as 0
+- It counts failures per student and classifies:
+  * failed exactly one subject -> listed under first group
+  * passed all subjects -> listed under second group
+- Final counts summarize group sizes
+
+Exit codes:
+- 0 on success (script completed and printed results)
+- 1 if input file missing or unreadable
+
+Saved files:
+None; outputs printed to stdout. You can redirect to a file if needed:
+./validate_results.sh marks.txt > results.txt
