@@ -1,1 +1,4 @@
-
+admin@site.com
+alice1@domain.com
+carol@example.com
+john123@company.com
