@@ -1,1 +1,11 @@
-
+alice1@domain.com
+bob@domain.org
+Carol@Example.com
+user!@domain.com
+john123@company.com
+mary@domain.c0m
+noatsign.example.com
+alice1@domain.com
+user@dom4in.com
+admin@site.com
+ADMIN@site.COM
