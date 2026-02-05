@@ -1,1 +1,120 @@
+EXPLANATION
 
+1. find . -type f
+   - Finds all files (not directories) in current directory and subdirectories
+   - . : Current directory (starts search here)
+   - -type f : Only find files (excludes directories)
+   - Output: List of file paths like ./file1.txt, ./subdir/file2.txt
+   - Example: If dirA contains file1.txt and docs/readme.txt
+     Output: ./file1.txt
+             ./docs/readme.txt
+
+2. sort
+   - Sorts lines alphabetically in ascending order
+   - Takes input and arranges lines A-Z
+   - Required because comm command needs sorted input
+   - Example Input: ./zebra.txt, ./apple.txt
+     Output: ./apple.txt, ./zebra.txt
+
+3. comm -23 <(list1) <(list2)
+   - Compares two sorted lists line by line
+   - -23 : Suppress columns 2 and 3, show only column 1
+     Column 1 = lines unique to first file
+     Column 2 = lines unique to second file  
+     Column 3 = lines common to both files
+   - Result: Shows only lines in list1 that are NOT in list2
+   - Used to find files only in dirA
+   - Example: list1 has [a.txt, b.txt, c.txt]
+              list2 has [b.txt, d.txt]
+     Output: a.txt, c.txt (only in list1)
+
+4. comm -13 <(list1) <(list2)
+   - Compares two sorted lists line by line
+   - -13 : Suppress columns 1 and 3, show only column 2
+   - Result: Shows only lines in list2 that are NOT in list1
+   - Used to find files only in dirB
+   - Example: list1 has [a.txt, b.txt, c.txt]
+              list2 has [b.txt, d.txt]
+     Output: d.txt (only in list2)
+
+5. comm -12 <(list1) <(list2)
+   - Compares two sorted lists line by line
+   - -12 : Suppress columns 1 and 2, show only column 3
+   - Result: Shows only lines common to both lists
+   - Used to find files present in both directories
+   - Example: list1 has [a.txt, b.txt, c.txt]
+              list2 has [b.txt, d.txt]
+     Output: b.txt (common to both)
+
+6. cmp -s file1 file2
+   - Compares two files byte by byte
+   - -s : Silent mode (suppresses normal output)
+   - Returns exit code: 0 if files identical, 1 if different
+   - Used in if statement to check content match
+   - Does NOT modify files, only compares them
+   - Example: If file1 contains "hello" and file2 contains "hello"
+     Exit code: 0 (success, files match)
+   - Example: If file1 contains "hello" and file2 contains "world"
+     Exit code: 1 (failure, files differ)
+
+7. sed 's/^/  /'
+   - Stream editor for text transformation
+   - s : Substitute command
+   - ^ : Beginning of line (regex pattern)
+   - /  / : Two spaces (replacement text)
+   - Result: Adds two spaces at start of each line
+   - Used to indent output for better readability
+   - Example Input: file1.txt
+     Output:   file1.txt
+
+
+SPECIAL BASH SYNTAX USED
+
+Process Substitution: <(command)
+   - Treats command output as a temporary file
+   - Allows commands expecting file arguments to work with command output
+   - Example: comm -23 <(echo "$filesA") <(echo "$filesB")
+     Creates temporary "files" from variables for comm to compare
+
+Command Substitution: $(command)
+   - Executes command and returns its output as text
+   - Stores result in variables
+   - Example: filesA=$(cd dirA && find . -type f | sort)
+     Runs the commands, stores the file list in filesA variable
+
+Pipe Operator: |
+   - Connects output of left command to input of right command
+   - Chains multiple commands together
+   - Example: find . -type f | sort
+     Passes output of find directly to sort
+
+Here-String: <<< "$variable"
+   - Feeds string content to command as input
+   - Example: while read -r file; done <<< "$common_files"
+     Feeds each line of common_files variable to the while loop
+
+COMMAND BREAKDOWN
+
+Command: filesA=$(cd dirA && find . -type f | sort)
+  1. cd dirA : Change to dirA directory
+  2. && : Execute next command only if cd succeeds
+  3. find . -type f : Find all files in dirA
+  4. | : Pipe results to sort
+  5. sort : Sort the file list
+  6. $(...) : Capture all output into filesA variable
+
+Command: only_in_A=$(comm -23 <(echo "$filesA") <(echo "$filesB"))
+  1. echo "$filesA" : Output filesA contents
+  2. <(...) : Treat output as temporary file
+  3. echo "$filesB" : Output filesB contents
+  4. <(...) : Treat output as temporary file
+  5. comm -23 : Compare files, show only lines in first file
+  6. $(...) : Capture result into only_in_A variable
+
+Command: if cmp -s "dirA/$file" "dirB/$file"; then
+  1. cmp -s : Compare two files silently
+  2. "dirA/$file" : First file path (using variable)
+  3. "dirB/$file" : Second file path (using variable)
+  4. if ... then : Execute code based on exit status
+  5. Exit code 0 (files match) → execute then block
+  6. Exit code 1 (files differ) → execute else block
