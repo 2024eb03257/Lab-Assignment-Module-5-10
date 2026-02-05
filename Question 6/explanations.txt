@@ -1,19 +1,6 @@
 EXPLANATION
 
-This is an enhanced version that's more efficient and feature-rich than the basic version.
-
-KEY IMPROVEMENTS OVER BASIC VERSION
-
- Takes filename as command-line argument (not hardcoded)
- Validates input (checks if file exists, is readable, not empty)
- Processes file only ONCE (more efficient)
- Shows ALL longest/shortest words (not just one)
- Uses single awk pass for all calculations (faster)
- More robust error handling
-
-
 COMMAND-BY-COMMAND BREAKDOWN
-
 
 1. [ $# -ne 1 ]
    - $# : Number of command-line arguments passed to script
