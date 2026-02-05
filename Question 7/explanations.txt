@@ -1,1 +1,236 @@
+EXPLANATIONS
 
+COMMAND-BY-COMMAND BREAKDOWN
+
+1. [ $# -ne 1 ] && echo "Usage: $0 <file>" && exit 1
+   - $# : Number of command-line arguments
+   - -ne 1 : Not equal to 1
+   - Validates exactly one argument (filename) is provided
+   - If fails, shows usage and exits with error code 1
+
+2. [ ! -f "$1" ] && echo "Error: File '$1' not found" && exit 1
+   - $1 : First command-line argument (filename)
+   - ! -f : NOT a regular file (doesn't exist or not accessible)
+   - Checks if file exists before processing
+   - Prevents errors from trying to process non-existent files
+
+3. > vowels.txt > consonants.txt > mixed.txt
+   - > filename : Output redirection (creates/truncates file)
+   - Clears all three output files (makes them empty)
+   - Ensures clean slate before writing new results
+   - Multiple redirections in one line (all execute)
+   - Alternative: rm -f vowels.txt consonants.txt mixed.txt
+
+4. tr '[:upper:]' '[:lower:]' < "$1"
+   - tr : Translate characters
+   - [:upper:] : Character class for A-Z
+   - [:lower:] : Character class for a-z
+   - < "$1" : Read input from file
+   - Converts all text to lowercase for consistent matching
+   - Example: "Hello WORLD" → "hello world"
+
+5. grep -oE '\b[a-z]+\b'
+   - grep : Search for patterns
+   - -o : Output only matched parts (not entire line)
+   - -E : Extended regex (more powerful patterns)
+   - \b : Word boundary (start/end of word)
+   - [a-z]+ : One or more lowercase letters
+   - Result: Extracts individual words, one per line
+   - Example Input: "hello, world! 123 test"
+     Output: "hello\nworld\ntest"
+
+6. WORDS=$(...)
+   - Command substitution
+   - Stores extracted words in WORDS variable
+   - Contains one word per line
+   - Used for multiple pattern matching operations
+
+
+GREP PATTERN EXPLANATIONS
+
+
+Pattern 1: grep -E '^[aeiou]+$'
+   - -E : Extended regular expression mode
+   - ^ : Start of line (anchors pattern to beginning)
+   - [aeiou] : Character class matching any vowel
+   - + : One or more of preceding pattern
+   - $ : End of line (anchors pattern to end)
+   - Combined: "Entire word consists ONLY of vowels"
+   - Matches: "a", "i", "aaa", "aei", "ooo"
+   - Doesn't match: "cat", "be", "hello" (contain consonants)
+
+Pattern 2: grep -E '^[bcdfghjklmnpqrstvwxyz]+$'
+   - ^ : Start of line
+   - [bcdfghjklmnpqrstvwxyz] : All consonants
+   - + : One or more consonants
+   - $ : End of line
+   - Combined: "Entire word consists ONLY of consonants"
+   - Matches: "by", "my", "cry", "rhythm"
+   - Doesn't match: "cat", "dog", "hello" (contain vowels)
+
+Pattern 3a: grep -E '^[bcdfghjklmnpqrstvwxyz].*[aeiou].*'
+   - ^ : Start of line
+   - [bcdfghjklmnpqrstvwxyz] : Starts with consonant
+   - . : Any character
+   - * : Zero or more times
+   - [aeiou] : Contains at least one vowel
+   - .* : Followed by anything
+   - Combined: "Starts with consonant AND contains vowel"
+   - Matches: "cat", "dog", "programming", "rhythm"
+   - Doesn't match: "a", "eat" (start with vowel)
+
+Pattern 3b: grep '[bcdfghjklmnpqrstvwxyz]$'
+   - [bcdfghjklmnpqrstvwxyz] : Consonant
+   - $ : At end of line
+   - Combined: "Ends with consonant"
+   - This is piped AFTER pattern 3a (both must match)
+   - Final result: Start consonant + contains vowel + end consonant
+   - Matches: "cat", "dog", "test", "quick"
+   - Doesn't match: "to", "be", "the" (end with vowel)
+
+7. sort -u
+   - sort : Alphabetically sort lines
+   - -u : Unique (remove duplicates)
+   - Ensures each word appears only once in output
+   - Example Input: "cat\ndog\ncat\nbird"
+     Output: "bird\ncat\ndog"
+
+8. > vowels.txt
+   - > : Output redirection (write to file)
+   - Saves grep results to vowels.txt
+   - Overwrites file (already cleared earlier)
+
+
+PIPELINE FLOW VISUALIZATION
+
+
+Input file: "I am HAPPY. Can you SING?"
+
+Step 1: tr '[:upper:]' '[:lower:]' < "$1"
+   → "i am happy. can you sing?"
+
+Step 2: grep -oE '\b[a-z]+\b'
+   → "i\nam\nhappy\ncan\nyou\nsing"
+
+Step 3: Store in WORDS variable
+   WORDS contains 6 words
+
+Step 4: Process for vowels only
+   echo "$WORDS" | grep -E '^[aeiou]+$'
+   → "i" (only word with all vowels)
+   → Saved to vowels.txt
+
+Step 5: Process for consonants only
+   echo "$WORDS" | grep -E '^[bcdfghjklmnpqrstvwxyz]+$'
+   → (none in this example)
+   → consonants.txt is empty
+
+Step 6: Process for mixed words
+   echo "$WORDS" | grep -E '^[bcdfghjklmnpqrstvwxyz].*[aeiou].*'
+   → "happy\ncan\nsing" (start with consonant, have vowel)
+   
+   Then: grep '[bcdfghjklmnpqrstvwxyz]$'
+   → "can\nsing" (also end with consonant)
+   → Saved to mixed.txt
+
+Final Output Files:
+   vowels.txt: i
+   consonants.txt: (empty)
+   mixed.txt: can, sing
+   (Note: "am" and "happy" filtered out - don't end with consonant)
+
+
+DETAILED EXAMPLES
+-----------------
+
+Example 1: Word "aeiou"
+   - Vowels pattern '^[aeiou]+$' → MATCH ✓
+   - Consonants pattern '^[bcdfg...]+$' → NO MATCH
+   - Mixed pattern → NO MATCH (doesn't start with consonant)
+   - Result: Goes to vowels.txt
+
+Example 2: Word "rhythm"
+   - Vowels pattern → NO MATCH (has consonants)
+   - Consonants pattern → MATCH ✓ (all letters are consonants)
+   - Mixed pattern → NO MATCH
+   - Result: Goes to consonants.txt
+
+Example 3: Word "cat"
+   - Vowels pattern → NO MATCH (has 'c' and 't')
+   - Consonants pattern → NO MATCH (has 'a')
+   - Mixed pattern check:
+     * Starts with consonant 'c' → YES ✓
+     * Contains vowel 'a' → YES ✓
+     * Ends with consonant 't' → YES ✓
+   - Result: Goes to mixed.txt
+
+Example 4: Word "the"
+   - Vowels pattern → NO MATCH
+   - Consonants pattern → NO MATCH
+   - Mixed pattern check:
+     * Starts with consonant 't' → YES ✓
+     * Contains vowel 'e' → YES ✓
+     * Ends with consonant → NO (ends with 'e', a vowel)
+   - Result: Not in any file (filtered out)
+
+Example 5: Word "apple"
+   - Vowels pattern → NO MATCH
+   - Consonants pattern → NO MATCH
+   - Mixed pattern check:
+     * Starts with consonant → NO (starts with 'a', a vowel)
+   - Result: Not in any file (filtered out)
+
+
+FILE OUTPUT FORMAT
+------------------
+
+Each output file contains:
+- One word per line
+- Alphabetically sorted
+- No duplicates
+- Lowercase only
+
+Example vowels.txt:
+a
+i
+oo
+
+Example consonants.txt:
+by
+cry
+my
+try
+
+Example mixed.txt:
+bash
+cat
+dog
+grep
+run
+test
+
+
+ERROR HANDLING
+--------------
+
+Case 1: No arguments
+$ ./script.sh
+Output: Usage: ./script.sh <file>
+
+Case 2: File doesn't exist
+$ ./script.sh missing.txt
+Output: Error: File 'missing.txt' not found
+
+Case 3: Empty input file
+$ touch empty.txt
+$ ./script.sh empty.txt
+Output: Processing: empty.txt
+        Done! Check the output files.
+Result: All three output files are empty
+
+Case 4: Non-alphabetic content
+$ echo "123 456 !@#" > numbers.txt
+$ ./script.sh numbers.txt
+Output: Processing: numbers.txt
+        Done! Check the output files.
+Result: All three output files are empty (no words extracted)
