@@ -1,1 +1,123 @@
+COMMANDS EXECUTED AND OUTPUTS
 
+1) Create sample emails file
+Command:
+cat > emails.txt <<'EOF'
+alice1@domain.com
+bob@domain.org
+Carol@Example.com
+user!@domain.com
+john123@company.com
+mary@domain.c0m
+noatsign.example.com
+alice1@domain.com
+user@dom4in.com
+admin@site.com
+ADMIN@site.COM
+EOF
+
+Input emails.txt content:
+alice1@domain.com
+bob@domain.org
+Carol@Example.com
+user!@domain.com
+john123@company.com
+mary@domain.c0m
+noatsign.example.com
+alice1@domain.com (duplicate)
+user@dom4in.com
+admin@site.com
+ADMIN@site.COM (duplicate of line 10)
+
+2) Make script executable
+Command:
+chmod +x emailcleaner.sh
+
+(No output on success)
+
+3) Run the email cleaner
+Command:
+./emailcleaner.sh emails.txt
+
+Output:
+Valid emails written to: valid.txt
+Invalid emails written to: invalid.txt
+
+4) Show valid emails
+Command:
+cat valid.txt
+
+Output:
+admin@site.com
+alice1@domain.com
+carol@example.com
+john123@company.com
+
+Notes:
+- Duplicates removed (alice1@domain.com and admin@site.com appeared multiple times)
+- Case-normalized to lowercase
+- Sorted alphabetically
+- All match pattern: [a-z0-9]+@[a-z]+\.com
+
+5) Show invalid emails
+Command:
+cat invalid.txt
+
+Output:
+bob@domain.org
+mary@domain.c0m
+user!@domain.com
+user@dom4in.com
+
+Notes:
+- bob@domain.org: domain ends with .org (not .com)
+- mary@domain.c0m: invalid domain (0 in place of o)
+- user!@domain.com: contains special char ! before @
+- user@dom4in.com: domain contains digit 4 (letters only)
+- noatsign.example.com: missing @ symbol - filtered out entirely
+
+COMMAND BREAKDOWN:
+
+grep -E -o '[^[:space:]]+@[^[:space:]]+' emails.txt
+- -E: Extended regex
+- -o: Print only matching parts (not whole line)
+- Pattern: Extracts tokens containing @ (potential emails)
+- Pipes to temporary file for further processing
+
+grep -i -E '[a-z0-9]+@[a-z]+\.com' emails.txt
+- -i: Case-insensitive matching
+- -E: Extended regex
+- Pattern: Matches valid email format (letters/digits)@(letters).com
+- Extracts only valid emails
+
+tr '[:upper:]' '[:lower:]'
+- Converts uppercase letters to lowercase
+- Normalizes email addresses for consistency
+
+sort
+- Arranges emails in alphabetical order
+- Prepares for deduplication
+
+uniq
+- Removes duplicate consecutive entries
+- Works after sort to eliminate all duplicates
+- Applied to both valid and invalid lists
+
+sort | uniq > valid.txt
+- Pipeline: Extract → Sort → Deduplicate → Save to file
+- Ensures unique, sorted, valid emails only
+
+mv valid_tmp valid.txt
+- Moves temporary file to final destination
+- Atomic operation for clean file handling
+
+rm -f invalid_tmp
+- Cleans up temporary files after processing
+
+Exit codes:
+- 0 on success (files created and written)
+- 1 if input file missing or unreadable or usage error
+
+Files created:
+- valid.txt: Clean, deduplicated, sorted valid emails (4 entries)
+- invalid.txt: Non-matching email patterns (4 entries)
