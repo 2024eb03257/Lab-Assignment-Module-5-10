@@ -1,1 +1,129 @@
+COMMANDS EXECUTED AND THEIR OUTPUTS
 
+
+TEST 1: SCRIPT EXECUTION - NO ARGUMENTS
+
+Command: ./analyze.sh
+
+Output:
+Error: Please provide exactly one argument (file or directory path).
+
+Explanation:
+- The script was run without any arguments
+- The condition [ $# -ne 1 ] evaluated to true (0 arguments ≠ 1)
+- Script displayed error message and exited with status 1
+
+
+TEST 2: SCRIPT EXECUTION - NON-EXISTENT PATH
+
+Command: ./analyze.sh /nonexistent/path
+
+Output:
+Error: Path '/nonexistent/path' does not exist.
+
+Explanation:
+- The script was run with a path that doesn't exist
+- The condition [ ! -e "$1" ] evaluated to true (path does not exist)
+- Script displayed error message with the specified path
+- Script exited with status 1
+
+
+TEST 3: FILE ANALYSIS
+
+Command 3a: echo -e "Line 1\nLine 2\nLine 3" > test_file.txt
+
+Output: (No output - file created silently)
+
+Explanation:
+- echo: Prints text to stdout
+- -e: Enable interpretation of backslash escapes (\n for newline)
+- >: Redirects output to file (creates test_file.txt)
+- Result: File created with 3 lines of text
+
+Command 3b: ./analyze.sh test_file.txt
+
+Output:
+File Analysis: test_file.txt
+Number of lines: 3
+Number of words: 6
+Number of characters: 21
+
+Explanation:
+- Script recognized test_file.txt as a file ([ -f "$1" ] returned true)
+- wc -l < test_file.txt: Counted 3 lines
+- wc -w < test_file.txt: Counted 6 words (Line, 1, Line, 2, Line, 3)
+- wc -c < test_file.txt: Counted 21 characters (including newlines)
+- All results displayed with labels
+
+
+TEST 4: DIRECTORY ANALYSIS
+
+Command 4a: mkdir -p test_dir
+
+Output: (No output - directory created silently)
+
+Explanation:
+- mkdir: Make directory command
+- -p: Create parent directories if needed
+- Result: test_dir directory created
+
+
+Command 4b: echo "file1" > test_dir/file1.txt
+
+Output: (No output - file created silently)
+
+Explanation:
+- echo: Prints "file1"
+- >: Redirects output to file
+- Result: test_dir/file1.txt created with content "file1"
+
+
+Command 4c: echo "file2" > test_dir/file2.txt
+
+Output: (No output - file created silently)
+
+Explanation:
+- Creates test_dir/file2.txt with content "file2"
+
+
+Command 4d: echo "file3" > test_dir/file3.doc
+
+Output: (No output - file created silently)
+
+Explanation:
+- Creates test_dir/file3.doc with content "file3"
+- Note: .doc extension (not .txt)
+
+
+Command 4e: ./analyze.sh test_dir
+
+Output:
+Directory Analysis: test_dir
+Total number of files: 3
+Number of .txt files: 2
+
+Explanation:
+- Script recognized test_dir as a directory ([ -d "$1" ] returned true)
+- find test_dir -maxdepth 1 -type f | wc -l: Found 3 files
+  * file1.txt
+  * file2.txt
+  * file3.doc
+- find test_dir -maxdepth 1 -name "*.txt" -type f | wc -l: Found 2 .txt files
+  * file1.txt
+  * file2.txt
+- All results displayed with labels
+
+
+EXIT CODES
+
+
+Command: echo $?  (displays exit code of last command)
+
+After successful file analysis: 0 (success)
+After successful directory analysis: 0 (success)
+After error (invalid arguments): 1 (error)
+After error (path not found): 1 (error)
+
+Exit Code Legend:
+- 0: Script executed successfully
+- 1: Script encountered an error
