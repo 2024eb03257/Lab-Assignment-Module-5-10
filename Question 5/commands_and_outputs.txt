@@ -1,1 +1,29 @@
+Directory Comparison Script
 
+Setup Commands:
+$ mkdir -p dirA dirB
+$ echo "Hello World" > dirA/file1.txt
+$ echo "Another file in dirA" > dirA/file2.txt
+$ echo "This content is the same" > dirA/shared.txt
+$ echo "Version A" > dirA/different.txt
+$ echo "File only in dirB" > dirB/file3.txt
+$ echo "This content is the same" > dirB/shared.txt
+$ echo "Version B" > dirB/different.txt
+
+Execution Command:
+$ chmod +x sync.sh
+$ bash sync.sh dirA dirB
+
+Output:
+=== Files only in dirA ===
+file1.txt
+file2.txt
+
+=== Files only in dirB ===
+common2.txt
+file3.txt
+
+=== Common files (showing differences) ===
+SAME: common.txt
+DIFFERENT: same_name.txt
+DIFFERENT: subdir/subfile.txt
