@@ -1,0 +1,111 @@
+1. VALIDATING ARGUMENT QUANTITY
+   Code: [ $# -ne 1 ]
+     Purpose: Verifies the script received exactly one argument
+     $#: Variable holding the number of arguments passed
+     -ne: Operator meaning "not equal"
+     Usage: Prevents running script without required input
+
+
+   2. TEST COMMAND - FILE EXISTENCE
+      Command: [ ! -e "$logfile" ]
+      Purpose: Checks if a file path exists
+      -e: File test operator (true if file exists)
+      !: Negation operator (reverses the result)
+      Usage: Prevents processing non-existent files
+
+   3. TEST COMMAND - READ PERMISSION
+      Command: [ ! -r "$logfile" ]
+      Purpose: Verifies script has permission to read the file
+      -r: File test operator (true if file is readable)
+      !: Negation operator
+      Usage: Ensures file access before attempting to process it
+
+   4. GREP - PATTERN MATCHING
+      Command: grep -E "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} "
+      Purpose: Finds all lines matching the log format
+      -E: Extended regular expression syntax
+      ^: Match start of line
+      [0-9]{4}: Match exactly 4 digits (year)
+      [0-9]{2}: Match exactly 2 digits (month/day/hour/minute/second)
+      Pattern: Locates lines with YYYY-MM-DD HH:MM:SS structure
+      Output: Pipe to wc -l to count matching lines
+
+   5. AWK - FIELD COUNTING
+      Command: awk '$3=="INFO"{count++} END{print (count+0)}' "$logfile"
+      Purpose: Counts how many lines have "INFO" in the third field
+      $3: References the third space-separated field
+      ==: Exact match comparison
+      count++: Increments counter for each match
+      END: Processes this block after reading entire file
+      (count+0): Outputs count as number (treats empty as 0)
+      Variation: Replace INFO with WARNING or ERROR to count other levels
+
+   6. AWK - ERROR EXTRACTION
+      Command: awk '$3=="ERROR"{print $1" "$2" "substr($0, index($0,$4))}' "$logfile"
+      Purpose: Extracts date, time, and message for ERROR entries
+      $1: First field (date)
+      $2: Second field (time)
+      substr($0, index($0,$4)): Extracts message portion of line
+      Output: Timestamped error message (e.g., "2025-01-12 10:17:10 Network timeout")
+
+   7. SORT - CHRONOLOGICAL ORDERING
+      Command: sort -k1,1 -k2,2
+      Purpose: Arranges ERROR messages by date and time
+      -k1,1: Sort by first field (date) as primary key
+      -k2,2: Sort by second field (time) as secondary key
+      Result: ERROR messages in chronological order
+
+   8. TAIL - SELECTING THE LAST LINE
+      Command: tail -n 1
+      Purpose: Extracts the final line from sorted output
+      -n 1: Get the last 1 line
+      Result: Most recent ERROR message after sorting
+
+   9. DATE - CURRENT TIMESTAMP
+      Command: date +%F
+      Purpose: Generates today's date in standard format
+      +%F: Format code for YYYY-MM-DD
+      Usage: Part of report filename (e.g., logsummary_2026-02-05.txt)
+
+   10. COMMAND SUBSTITUTION
+       Command: $(date +%F)
+       Purpose: Executes date command and replaces with the result
+       $(...): Syntax for command substitution
+       Result: Allows dynamic filename based on current date
+
+   11. OUTPUT REDIRECTION
+       Command: { ... } > "$report_file"
+       Purpose: Sends all output to a file instead of the screen
+       >: Redirection operator
+       Result: Creates/overwrites the report file with content
+
+   12. CAT - DISPLAY FILE CONTENTS
+       Command: cat "$report_file"
+       Purpose: Shows the generated report to the user
+       Output: Prints entire file contents to terminal
+
+   13. ECHO - PRINT TEXT
+       Command: echo "message"
+       Purpose: Outputs text to the terminal
+       Usage: Displays status messages and usage information
+
+   14. LOGICAL OPERATORS IN PIPELINES
+       Command: command1 | command2 | command3
+       Purpose: Chains commands together
+       |: Pipe operator (passes output of one command as input to next)
+       Example: awk ... | sort ... | tail -n 1
+       Flow: AWK output → SORT input → TAIL input
+
+   15. IF-THEN STATEMENT
+       Command: if [ condition ]; then ... fi
+       Purpose: Executes code block only if condition is true
+       [ ]: Test command (checks conditions)
+       fi: Ends the if block
+       Usage: Implements error checking and validation
+
+   16. EXIT COMMAND
+       Command: exit 1 or exit 0
+       Purpose: Terminates script with specified status code
+       0: Indicates success
+       1: Indicates error/failure
+       Usage: Allows other programs to detect success or failure
