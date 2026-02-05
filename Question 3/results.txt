@@ -1,0 +1,13 @@
+Students who failed in exactly ONE subject:
+102, Bob Jones
+104, Dan Brown
+105, Eve White
+106, Frank Black
+
+Students who passed ALL subjects:
+101, Alice Smith
+103, Carol Lee
+
+Counts:
+Passed all: 2
+Failed exactly one: 4
