@@ -1,1 +1,4 @@
-
+bob@domain.org
+mary@domain.c0m
+user!@domain.com
+user@dom4in.com
