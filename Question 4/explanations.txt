@@ -1,1 +1,133 @@
+1. GREP - EXTRACT TOKENS WITH @
+   Command: grep -E -o '[^[:space:]]+@[^[:space:]]+'
+   Purpose: Finds all word tokens containing @
+   -E: Extended regex syntax
+   -o: Print only matching parts (not full line)
+   [^[:space:]]+: Matches non-whitespace characters
+   Pattern: Extracts potential email addresses
 
+2. GREP - FILTER VALID EMAILS
+   Command: grep -i -E '[a-z0-9]+@[a-z]+\.com'
+   Purpose: Matches valid email format only
+   -i: Case-insensitive matching
+   -E: Extended regex
+   [a-z0-9]+: Letters and digits before @
+   @[a-z]+: Lowercase letters after @
+   \.com: Literal .com domain
+   Result: Only valid format emails pass
+
+3. TR - CONVERT CASE
+   Command: tr '[:upper:]' '[:lower:]'
+   Purpose: Converts all uppercase to lowercase
+   [:upper:]: All uppercase letters
+   [:lower:]: All lowercase letters
+   Usage: Normalizes emails to consistent case
+
+4. SORT - ARRANGE ALPHABETICALLY
+   Command: sort
+   Purpose: Orders emails alphabetically
+   Effect: Prepares data for deduplication
+   Usage: Essential before using uniq
+
+5. UNIQ - REMOVE DUPLICATES
+   Command: uniq
+   Purpose: Eliminates consecutive duplicate lines
+   Requirement: Data must be sorted first
+   Effect: Creates list of unique entries
+   Usage: Removes duplicate emails
+
+6. PIPE - CHAIN COMMANDS
+   Command: command1 | command2 | command3
+   Purpose: Passes output of one command as input to next
+   |: Pipe operator
+   Example: grep ... | sort | uniq > valid.txt
+   Flow: Extract → Sort → Deduplicate → Save
+
+7. OUTPUT REDIRECTION
+   Command: > filename
+   Purpose: Sends command output to file
+   >: Overwrites file if exists
+   >>: Appends to file
+   Usage: grep ... > valid.txt saves results
+
+8. FILE COMPARISON GREP
+   Command: grep -v -f pattern_file data_file
+   Purpose: Excludes lines matching patterns from file
+   -v: Invert match (show non-matching lines)
+   -f: Read patterns from file
+   Usage: Find invalid emails by excluding valid ones
+
+9. MOVE FILE
+   Command: mv source_file destination_file
+   Purpose: Renames or moves file
+   Usage: mv temp.txt final.txt
+   Effect: Atomic file replacement
+
+10. REMOVE FILE
+    Command: rm -f filename
+    Purpose: Deletes file forcefully
+    -f: Force (suppress errors if file missing)
+    Usage: Clean up temporary files
+
+11. OUTPUT REDIRECTION TO STDERR
+    Command: command 2>/dev/null
+    Purpose: Suppresses error messages
+    2>: Redirects errors to null device
+    /dev/null: Discards all data
+    Usage: Prevents error spam in output
+
+12. OR OPERATOR
+    Command: command1 || command2
+    Purpose: Runs command2 only if command1 fails
+    ||: OR operator (exits non-zero)
+    Usage: Fallback handling for errors
+
+13. TEST ARGUMENT COUNT
+    Command: if [ $# -gt 1 ]; then
+    Purpose: Checks number of arguments
+    $#: Total arguments passed
+    -gt: Greater than
+    Usage: Validates user input
+
+14. TEST FILE EXISTS
+    Command: if [ ! -e "$file" ]; then
+    Purpose: Checks if file exists
+    -e: File exists operator
+    !: Negation (NOT exists)
+    Usage: Error checking before processing
+
+15. TEST FILE READABLE
+    Command: if [ ! -r "$file" ]; then
+    Purpose: Checks read permission
+    -r: Readable operator
+    !: Negation
+    Usage: Ensures file access before use
+
+16. VARIABLE ASSIGNMENT
+    Command: valid_tmp=".valid_tmp.txt"
+    Purpose: Stores value in variable
+    = : Assignment operator
+    Usage: Temporary file naming
+
+17. DEFAULT VALUE
+    Command: file="${1:-emails.txt}"
+    Purpose: Uses argument or default value
+    "${1:-...}": If arg 1 empty, use default
+    Usage: Flexible script input
+
+18. EXIT COMMAND
+    Command: exit 0 or exit 1
+    Purpose: Terminates script with status
+    0: Success
+    1: Error/failure
+    Usage: Signal execution result to caller
+
+19. ECHO - PRINT TEXT
+    Command: echo "message"
+    Purpose: Outputs text to terminal
+    Usage: Status messages and confirmation
+
+20. CAT - DISPLAY FILE
+    Command: cat filename
+    Purpose: Shows entire file contents
+    Usage: View results or verify output
